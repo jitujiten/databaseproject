@@ -25,6 +25,7 @@ button {
   padding: 0.75rem 2rem;
   border-radius: 20px;
   margin-top: 5px;
+  margin-left:3px ;
 }
 
 button:focus {

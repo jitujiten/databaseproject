@@ -4,6 +4,9 @@ import MoviesList from "./components/MoviesList";
 import "./App.css";
 
 function App() {
+
+  
+
   const [movies, setmovies] = useState([]);
 
   const [isLoading, setloading] = useState(false);
@@ -14,24 +17,25 @@ function App() {
     try {
       setloading(true);
 
-      const response = await fetch("https://swapi.dev/api/films");
+      const response = await fetch("https://react-http-a04e6-default-rtdb.firebaseio.com/movies.json");
 
       if (!response.ok) {
         throw new Error("Something went wrong....Retrying");
       }
 
       const data = await response.json();
+     
+      const loadedmovies=[];
 
-      const transformedmovies = data.results.map((moviedata) => {
-        return {
-          id: moviedata.episode_id,
-          title: moviedata.title,
-          openingText: moviedata.opening_crawl,
-          releaseDate: moviedata.release_date,
-        };
-      });
-
-      setmovies(transformedmovies);
+      for(const key in data){
+        loadedmovies.unshift({
+          id:key,
+          title:data[key].title,
+          openingText:data[key].openingText,
+          releaseDate:data[key].releaseDate
+        })
+      }
+      setmovies(loadedmovies);
     } catch (error) {
       seterror(error.message);
     }
@@ -43,19 +47,41 @@ function App() {
     console.log("fetched");
   }, [fetchMoviehandler]);
 
-const submitHandler=(e)=>{
+const submitHandler= async (e)=>{
   e.preventDefault();
 
   const movieObject={
     "title":e.target.title.value,
-    "opening_crawl":e.target.OpeningText.value,
-    "release_date":new Date(e.target.date.value)
+    "openingText":e.target.OpeningText.value,
+    "releaseDate":e.target.date.value
   }
- console.log(movieObject);
 
+await fetch('https://react-http-a04e6-default-rtdb.firebaseio.com/movies.json',{
+    method:'POST',
+    body:JSON.stringify(movieObject),
+    headers:{
+      "content-Type":"aplication/json"
+    }
+  })
+
+
+ fetchMoviehandler();
 }
 
+const removeHandler = useCallback(async (id) => {
+  try {
+    setloading(true);
+  
+    await fetch(`https://react-http-a04e6-default-rtdb.firebaseio.com/movies/${id}.json`, {
+      method: "DELETE"
+    });
 
+    setmovies(movies.filter(movie => movie.id !== id));
+  } catch (error) {
+    seterror(error.message);
+  }
+  setloading(false);
+}, [movies]);
 
 
 
@@ -82,6 +108,7 @@ const submitHandler=(e)=>{
            id="date" 
           className="form-control" />
           <button>Add More</button>
+          <button type="reset">Reset</button>
         </form>
       </div>
 
@@ -89,7 +116,7 @@ const submitHandler=(e)=>{
         <button onClick={fetchMoviehandler}>Fetch Movies</button>
       </section>
       <section>
-        {!isLoading && movies.length > 0 && <MoviesList movies={movies} />}
+        {!isLoading && movies.length > 0 && <MoviesList onremove={removeHandler} movieslist={movies} />}
 
         {!isLoading && movies.length === 0 && !error && (
           <h2>No Movies found</h2>
