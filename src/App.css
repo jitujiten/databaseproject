@@ -7,6 +7,14 @@ section {
   padding: 2rem;
   border-radius: 12px;
 }
+.section1 {
+  margin: 1rem auto;
+  width: 90%;
+  max-width: 40rem;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+}
 
 button {
   font: inherit;
@@ -16,6 +24,7 @@ button {
   color: white;
   padding: 0.75rem 2rem;
   border-radius: 20px;
+  margin-top: 5px;
 }
 
 button:focus {
